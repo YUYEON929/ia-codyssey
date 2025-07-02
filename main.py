@@ -6,7 +6,7 @@ import os
 user_name = "apple"
 
 # 바탕화면 안의 '코디세이' 폴더 경로 만들기
-base_path = os.path.join("C:/Users", user_name, "OneDrive", "바탕 화면", "코디세이")
+base_path = os.path.join("C:/Users", user_name, "OneDrive", "바탕 화면", "codyssey")
 
 # 파일 이름
 file_name = "mission_computer_main.log"
