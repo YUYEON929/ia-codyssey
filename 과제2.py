@@ -15,13 +15,13 @@ with open('mission_computer_main.log','r', encoding='utf-8') as file:
         if ',' in line:
             parts = line.strip().split(',')
             log_list.append(parts)
+            
+log_list.sort(key=lambda x:x[0],reverse=True)
 
 print("===로그 리스트===")
 for item in log_list:
    print(item) 
 print("\n" + "="*50 + "\n")
-
-log_list.sort(key=lambda x:x[0],reverse=True)
 
 log_dict = {}
 
@@ -29,6 +29,14 @@ for item in log_list:
         key = item[0]
         value = item[1]+item[2]
         log_dict[key] = value
+
+print("===로그 딕셔너리===")
+for k, v in log_dict.items():
+#    print(f'k: {k}, v: {v}')
+    print(k)
+    print(v)
+print("\n" + "="*50 + "\n")
+
 
 with open('mission_computer_main.json','w',encoding='utf-8') as json_file:
     json.dump(log_dict, json_file, ensure_ascii=False, indent=4)

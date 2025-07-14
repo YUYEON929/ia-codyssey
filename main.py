@@ -5,8 +5,6 @@ print ('Hello Mars')
 
 
 
-
-
 import os
 
 # 사용자 이름
