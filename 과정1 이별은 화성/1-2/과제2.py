@@ -33,7 +33,7 @@ for item in log_list:
 print("===로그 딕셔너리===")
 for k, v in log_dict.items():
 #    print(f'k: {k}, v: {v}')
-    print(k)
+    print(log_dict)
     print(v)
 print("\n" + "="*50 + "\n")
 
