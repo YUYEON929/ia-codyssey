@@ -24,6 +24,7 @@ def calculate_average_strengths(parts):
         if part_name not in result:
             result[part_name] = []
         result[part_name].append(strength)
+
     avg_result = []
     for part_name, strengths in result.items():
         avg = sum(strengths) / len(strengths)
