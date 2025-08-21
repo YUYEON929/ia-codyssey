@@ -10,7 +10,7 @@ from PyQt6.QtCore import QThread, pyqtSignal, Qt
 # --- 녹음 관련 설정 ---
 CHUNK = 1024                # 한 번에 읽어들일 오디오 데이터의 크기
 FORMAT = pyaudio.paInt16    # 16비트 오디오 포맷
-CHANNELS = 1                # 모노 채널
+CHANNELS = 1                # 모노 채널 
 RATE = 44100                # 샘플링 속도 (Hz)
 TEMP_WAV_FILE = "temp_recording.wav" # 임시 저장될 WAV 파일 이름
 
