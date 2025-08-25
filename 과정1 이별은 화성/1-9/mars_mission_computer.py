@@ -70,11 +70,11 @@ class MissionComputer:
 # ------------------ 스레드 실행 함수 ------------------
 def run_threads():
     stop_event = threading.Event()
-    mc = MissionComputer(stop_event)
+    runComputer = MissionComputer(stop_event)
 
-    t1 = threading.Thread(target=mc.get_sensor_data)
-    t2 = threading.Thread(target=mc.get_mission_computer_info)
-    t3 = threading.Thread(target=mc.get_mission_computer_load)
+    t1 = threading.Thread(target=runComputer.get_sensor_data)
+    t2 = threading.Thread(target=runComputer.get_mission_computer_info)
+    t3 = threading.Thread(target=runComputer.get_mission_computer_load)
 
     t1.start()
     t2.start()
@@ -96,13 +96,13 @@ def run_threads():
 def run_processes():
     stop_event = multiprocessing.Event()
 
-    mc1 = MissionComputer(stop_event)
-    mc2 = MissionComputer(stop_event)
-    mc3 = MissionComputer(stop_event)
+    runComputer1 = MissionComputer(stop_event)
+    runComputer2 = MissionComputer(stop_event)
+    runComputer3 = MissionComputer(stop_event)
 
-    p1 = multiprocessing.Process(target=mc1.get_sensor_data)
-    p2 = multiprocessing.Process(target=mc2.get_mission_computer_info)
-    p3 = multiprocessing.Process(target=mc3.get_mission_computer_load)
+    p1 = multiprocessing.Process(target=runComputer1.get_sensor_data)
+    p2 = multiprocessing.Process(target=runComputer2.get_mission_computer_info)
+    p3 = multiprocessing.Process(target=runComputer3.get_mission_computer_load)
 
     p1.start()
     p2.start()
