@@ -1,4 +1,4 @@
-# door_hacking.py
+# door_hacking.pyc
 import itertools
 import string
 import time
