@@ -1,170 +1,141 @@
 # calculator.py
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QLineEdit, QVBoxLayout
+from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QGridLayout,
+                             QPushButton, QLineEdit)
 from PyQt6.QtCore import Qt
 
 
-# --- 계산 기능 담당 클래스 ---
 class Calculator:
     def __init__(self):
         self.reset()
 
     def reset(self):
-        self.current = "0"   # 현재 입력 중인 값
-        self.operator = None # 선택된 연산자
-        self.operand = None  # 이전에 입력된 값
-        return self.current
+        self.current_input = "0"   # 현재 입력된 수
+        self.operator = None       # 연산자
+        self.operand = None        # 이전 값
 
-    def input_number(self, num):
-        if self.current == "0":
-            self.current = num
+    def input_number(self, num: str):
+        if self.current_input == "0" and num != ".":
+            self.current_input = num
         else:
-            self.current += num
-        return self.current
+            # 소수점 중복 방지
+            if num == "." and "." in self.current_input:
+                return
+            self.current_input += num
 
-    def input_dot(self):
-        if "." not in self.current:
-            self.current += "."
-        return self.current
-
-    def set_operator(self, op):
-        if self.operator is not None:
+    def set_operator(self, op: str):
+        if self.operator and self.operand is not None:
             self.equal()
-        self.operand = float(self.current)
+        self.operand = float(self.current_input)
         self.operator = op
-        self.current = "0"
-        return str(self.operand)
+        self.current_input = "0"
 
-    def add(self, x, y): return x + y
-    def subtract(self, x, y): return x - y
-    def multiply(self, x, y): return x * y
-    def divide(self, x, y):
-        if y == 0:
-            return "Error"
-        return x / y
+    def add(self):
+        return self.operand + float(self.current_input)
 
-    def negative_positive(self):
-        if self.current.startswith("-"):
-            self.current = self.current[1:]
-        else:
-            if self.current != "0":
-                self.current = "-" + self.current
-        return self.current
+    def subtract(self):
+        return self.operand - float(self.current_input)
 
-    def percent(self):
+    def multiply(self):
+        return self.operand * float(self.current_input)
+
+    def divide(self):
         try:
-            self.current = str(float(self.current) / 100)
-        except:
-            self.current = "Error"
-        return self.current
+            return self.operand / float(self.current_input)
+        except ZeroDivisionError:
+            return "Error"
 
     def equal(self):
         if self.operator is None or self.operand is None:
-            return self.current
-        try:
-            x = self.operand
-            y = float(self.current)
-            if self.operator == "+": result = self.add(x, y)
-            elif self.operator == "-": result = self.subtract(x, y)
-            elif self.operator == "×": result = self.multiply(x, y)
-            elif self.operator == "÷": result = self.divide(x, y)
-            else: result = y
-            self.current = str(result)
-            self.operator = None
-            self.operand = None
-        except:
-            self.current = "Error"
-        return self.current
+            return self.current_input
+        if self.operator == "+":
+            result = self.add()
+        elif self.operator == "-":
+            result = self.subtract()
+        elif self.operator == "×":
+            result = self.multiply()
+        elif self.operator == "÷":
+            result = self.divide()
+        else:
+            result = self.current_input
+
+        self.current_input = str(result)
+        self.operator = None
+        self.operand = None
+        return self.current_input
+
+    def negative_positive(self):
+        if self.current_input.startswith("-"):
+            self.current_input = self.current_input[1:]
+        else:
+            if self.current_input != "0":
+                self.current_input = "-" + self.current_input
+
+    def percent(self):
+        value = float(self.current_input) / 100
+        self.current_input = str(value)
 
 
-# --- UI 담당 클래스 ---
 class CalculatorUI(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("iPhone Style Calculator")
-        self.setFixedSize(320, 480)
+        self.calc = Calculator()
+        self.init_ui()
 
-        self.calc = Calculator()  # 계산 로직 객체
+    def init_ui(self):
+        self.setWindowTitle("Calculator")
+        self.resize(300, 400)
 
-        # --- 출력창 ---
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
         self.display = QLineEdit("0")
-        self.display.setReadOnly(True)
         self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.display.setStyleSheet("font-size: 28px; padding: 15px;")
+        self.display.setReadOnly(True)
+        self.display.setStyleSheet("font-size: 24px; padding: 10px;")
+        layout.addWidget(self.display)
 
-        # --- 버튼 배치 ---
-        self.grid = QGridLayout()
-        self.grid.setSpacing(5)
+        grid = QGridLayout()
+        layout.addLayout(grid)
 
         buttons = [
-            ["AC", "+/-", "%", "÷"],
-            ["7", "8", "9", "×"],
-            ["4", "5", "6", "-"],
-            ["1", "2", "3", "+"],
-            ["0", ".", "="]
+            ("C", 0, 0), ("+/-", 0, 1), ("%", 0, 2), ("÷", 0, 3),
+            ("7", 1, 0), ("8", 1, 1), ("9", 1, 2), ("×", 1, 3),
+            ("4", 2, 0), ("5", 2, 1), ("6", 2, 2), ("-", 2, 3),
+            ("1", 3, 0), ("2", 3, 1), ("3", 3, 2), ("+", 3, 3),
+            ("0", 4, 0, 1, 2), (".", 4, 2), ("=", 4, 3),
         ]
 
-        for row, row_values in enumerate(buttons):
-            for col, text in enumerate(row_values):
-                btn = QPushButton(text)
-                btn.setFixedSize(70, 70)
-                btn.setStyleSheet("font-size: 20px;")
+        for text, row, col, *span in buttons:
+            button = QPushButton(text)
+            button.setFixedHeight(60)
+            button.setStyleSheet("font-size: 18px;")
+            if span:
+                grid.addWidget(button, row, col, span[0], span[1])
+            else:
+                grid.addWidget(button, row, col)
 
-                # '0' 버튼은 2칸 차지
-                if text == "0":
-                    self.grid.addWidget(btn, row + 1, col, 1, 2)
-                else:
-                    if row == 4 and col > 0:
-                        self.grid.addWidget(btn, row + 1, col + 1)
-                    else:
-                        self.grid.addWidget(btn, row + 1, col)
+            button.clicked.connect(lambda _, t=text: self.on_button_click(t))
 
-                # 이벤트 연결
-                if text.isdigit():
-                    btn.clicked.connect(lambda checked, val=text: self.num_pressed(val))
-                elif text == ".":
-                    btn.clicked.connect(self.dot_pressed)
-                elif text in ["+", "-", "×", "÷"]:
-                    btn.clicked.connect(lambda checked, val=text: self.op_pressed(val))
-                elif text == "=":
-                    btn.clicked.connect(self.equal_pressed)
-                elif text == "AC":
-                    btn.clicked.connect(self.reset_pressed)
-                elif text == "+/-":
-                    btn.clicked.connect(self.neg_pressed)
-                elif text == "%":
-                    btn.clicked.connect(self.percent_pressed)
+    def on_button_click(self, text):
+        if text.isdigit() or text == ".":
+            self.calc.input_number(text)
+        elif text in ["+", "-", "×", "÷"]:
+            self.calc.set_operator(text)
+        elif text == "=":
+            self.calc.equal()
+        elif text == "C":
+            self.calc.reset()
+        elif text == "+/-":
+            self.calc.negative_positive()
+        elif text == "%":
+            self.calc.percent()
 
-        main_layout = QVBoxLayout()
-        main_layout.addWidget(self.display)
-        main_layout.addLayout(self.grid)
-        self.setLayout(main_layout)
-
-    # --- 이벤트 핸들러 ---
-    def num_pressed(self, val):
-        self.display.setText(self.calc.input_number(val))
-
-    def dot_pressed(self):
-        self.display.setText(self.calc.input_dot())
-
-    def op_pressed(self, op):
-        self.display.setText(self.calc.set_operator(op))
-
-    def equal_pressed(self):
-        self.display.setText(self.calc.equal())
-
-    def reset_pressed(self):
-        self.display.setText(self.calc.reset())
-
-    def neg_pressed(self):
-        self.display.setText(self.calc.negative_positive())
-
-    def percent_pressed(self):
-        self.display.setText(self.calc.percent())
+        self.display.setText(self.calc.current_input)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    win = CalculatorUI()
-    win.show()
+    window = CalculatorUI()
+    window.show()
     sys.exit(app.exec())

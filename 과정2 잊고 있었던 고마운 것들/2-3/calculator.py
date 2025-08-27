@@ -1,79 +1,68 @@
 # calculator.py
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QLineEdit, QVBoxLayout
+from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QGridLayout,
+                             QPushButton, QLineEdit)
 from PyQt6.QtCore import Qt
 
 
 class CalculatorUI(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("iPhone Style Calculator")
-        self.setFixedSize(320, 480)  # 아이폰 계산기 비율에 맞춰 크기 고정
+        self.init_ui()
 
-        # --- 출력창 ---
-        self.display = QLineEdit()
-        self.display.setReadOnly(True)
+    def init_ui(self):
+        self.setWindowTitle("Calculator")
+        self.resize(300, 400)
+
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        # --- 디스플레이 ---
+        self.display = QLineEdit("0")
         self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.display.setStyleSheet("font-size: 28px; padding: 15px;")
-        self.display.setText("0")
+        self.display.setReadOnly(True)
+        self.display.setStyleSheet("font-size: 24px; padding: 10px;")
+        layout.addWidget(self.display)
 
-        # --- 버튼 배치 ---
-        self.grid = QGridLayout()
-        self.grid.setSpacing(5)
+        # --- 버튼 레이아웃 ---
+        grid = QGridLayout()
+        layout.addLayout(grid)
 
-        # 아이폰 계산기 버튼 순서
+        # 아이폰 계산기와 같은 버튼 배치
         buttons = [
-            ["AC", "+/-", "%", "÷"],
-            ["7", "8", "9", "×"],
-            ["4", "5", "6", "-"],
-            ["1", "2", "3", "+"],
-            ["0", ".", "="]
+            ("C", 0, 0), ("+/-", 0, 1), ("%", 0, 2), ("÷", 0, 3),
+            ("7", 1, 0), ("8", 1, 1), ("9", 1, 2), ("×", 1, 3),
+            ("4", 2, 0), ("5", 2, 1), ("6", 2, 2), ("-", 2, 3),
+            ("1", 3, 0), ("2", 3, 1), ("3", 3, 2), ("+", 3, 3),
+            ("0", 4, 0, 1, 2), (".", 4, 2), ("=", 4, 3),
         ]
 
-        # 버튼 생성
-        for row, row_values in enumerate(buttons):
-            for col, text in enumerate(row_values):
-                btn = QPushButton(text)
-                btn.setFixedSize(70, 70)
-                btn.setStyleSheet("font-size: 20px;")
+        # 버튼 생성 및 배치
+        for text, row, col, *span in buttons:
+            button = QPushButton(text)
+            button.setFixedHeight(60)
+            button.setStyleSheet("font-size: 18px;")
+            if span:
+                grid.addWidget(button, row, col, span[0], span[1])
+            else:
+                grid.addWidget(button, row, col)
 
-                # '0' 버튼은 아이폰처럼 2칸 차지
-                if text == "0":
-                    self.grid.addWidget(btn, row + 1, col, 1, 2)
-                else:
-                    # '0' 다음 칸 보정
-                    if row == 4 and col > 0:
-                        self.grid.addWidget(btn, row + 1, col + 1)
-                    else:
-                        self.grid.addWidget(btn, row + 1, col)
+            button.clicked.connect(lambda _, t=text: self.on_button_click(t))
 
-                # 숫자/점 입력 이벤트 연결
-                if text.isdigit() or text == ".":
-                    btn.clicked.connect(lambda checked, val=text: self.num_pressed(val))
-                else:
-                    btn.clicked.connect(lambda checked, val=text: self.op_pressed(val))
-
-        # 전체 레이아웃
-        main_layout = QVBoxLayout()
-        main_layout.addWidget(self.display)
-        main_layout.addLayout(self.grid)
-        self.setLayout(main_layout)
-
-    # --- 숫자 입력 이벤트 ---
-    def num_pressed(self, val):
-        if self.display.text() == "0":
-            self.display.setText(val)
+    def on_button_click(self, text):
+        """버튼을 누르면 디스플레이에 표시"""
+        current = self.display.text()
+        if current == "0":
+            if text.isdigit() or text == ".":
+                self.display.setText(text)
+            else:
+                self.display.setText(current + text)
         else:
-            self.display.setText(self.display.text() + val)
-
-    # --- 연산 버튼 이벤트 ---
-    def op_pressed(self, val):
-        # 이번 과제에서는 계산 로직 불필요 → 입력만 표시
-        self.display.setText(self.display.text() + " " + val + " ")
+            self.display.setText(current + text)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    win = CalculatorUI()
-    win.show()
+    window = CalculatorUI()
+    window.show()
     sys.exit(app.exec())

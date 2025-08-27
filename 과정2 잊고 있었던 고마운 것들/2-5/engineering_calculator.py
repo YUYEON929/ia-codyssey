@@ -1,85 +1,73 @@
 # engineering_calculator.py
 import sys
-from PyQt6.QtWidgets import (
-    QApplication, QWidget, QGridLayout, QPushButton, QLineEdit, QVBoxLayout
-)
+from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QGridLayout,
+                             QPushButton, QLineEdit)
 from PyQt6.QtCore import Qt
 
-class EngineeringCalculator(QWidget):
+
+class EngineeringCalculatorUI(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("iPhone Engineering Calculator")
-        self.setFixedSize(600, 400)  # 아이폰 가로 모드 크기 비슷하게
         self.init_ui()
 
     def init_ui(self):
+        self.setWindowTitle("Engineering Calculator")
+        self.resize(600, 400)
+
         layout = QVBoxLayout()
-        
-        # 출력창
-        self.display = QLineEdit()
+        self.setLayout(layout)
+
+        # --- 디스플레이 ---
+        self.display = QLineEdit("0")
         self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.display.setReadOnly(True)
         self.display.setStyleSheet("font-size: 24px; padding: 10px;")
         layout.addWidget(self.display)
 
-        # 버튼 레이아웃
+        # --- 버튼 레이아웃 ---
         grid = QGridLayout()
         layout.addLayout(grid)
 
-        # 공학용 계산기 버튼 배열 (아이폰 가로 모드와 유사하게)
+        # 아이폰 공학용 계산기 버튼 배치
         buttons = [
             # 1행
-            ["(", ")", "mc", "m+", "m-", "mr"],
+            ("(", 0, 0), (")", 0, 1), ("mc", 0, 2), ("m+", 0, 3), ("m-", 0, 4), ("mr", 0, 5), ("AC", 0, 6), ("+/-", 0, 7), ("%", 0, 8), ("÷", 0, 9),
             # 2행
-            ["2nd", "x²", "x³", "xʸ", "eˣ", "10ˣ"],
+            ("2ⁿᵈ", 1, 0), ("x²", 1, 1), ("x³", 1, 2), ("xʸ", 1, 3), ("eˣ", 1, 4), ("10ˣ", 1, 5), ("7", 1, 6), ("8", 1, 7), ("9", 1, 8), ("×", 1, 9),
             # 3행
-            ["1/x", "²√x", "³√x", "ʸ√x", "ln", "log₁₀"],
+            ("1/x", 2, 0), ("²√x", 2, 1), ("³√x", 2, 2), ("ʸ√x", 2, 3), ("ln", 2, 4), ("log₁₀", 2, 5), ("4", 2, 6), ("5", 2, 7), ("6", 2, 8), ("-", 2, 9),
             # 4행
-            ["x!", "sin", "cos", "tan", "e", "EE"],
+            ("x!", 3, 0), ("sin", 3, 1), ("cos", 3, 2), ("tan", 3, 3), ("e", 3, 4), ("EE", 3, 5), ("1", 3, 6), ("2", 3, 7), ("3", 3, 8), ("+", 3, 9),
             # 5행
-            ["Rad", "sinh", "cosh", "tanh", "π", "Rand"],
-            # 6행 (기본 계산기 라인)
-            ["AC", "+/-", "%", "÷"],
-            # 7행
-            ["7", "8", "9", "×"],
-            # 8행
-            ["4", "5", "6", "-"],
-            # 9행
-            ["1", "2", "3", "+"],
-            # 10행
-            ["0", ".", "="]
+            ("Deg", 4, 0), ("sinh", 4, 1), ("cosh", 4, 2), ("tanh", 4, 3), ("π", 4, 4), ("Rand", 4, 5), ("0", 4, 6, 1, 2), (".", 4, 8), ("=", 4, 9),
         ]
 
         # 버튼 생성 및 배치
-        row = 0
-        for row_buttons in buttons:
-            col = 0
-            for btn_text in row_buttons:
-                btn = QPushButton(btn_text)
-                btn.setFixedSize(80, 50)
-                btn.setStyleSheet("font-size: 16px;")
-                btn.clicked.connect(lambda _, text=btn_text: self.on_button_click(text))
-                grid.addWidget(btn, row, col)
-                col += 1
-            row += 1
+        for text, row, col, *span in buttons:
+            button = QPushButton(text)
+            button.setFixedHeight(60)
+            button.setStyleSheet("font-size: 16px;")
+            if span:
+                grid.addWidget(button, row, col, span[0], span[1])
+            else:
+                grid.addWidget(button, row, col)
 
-        self.setLayout(layout)
+            button.clicked.connect(lambda _, t=text: self.on_button_click(t))
 
     def on_button_click(self, text):
-        """버튼 클릭 이벤트"""
-        if text == "AC":
-            self.display.setText("")
-        elif text == "=":
-            # 실제 계산 기능은 이번 과제에선 구현하지 않음
-            self.display.setText("= 결과 표시 예정")
+        """버튼을 누르면 디스플레이에 표시"""
+        current = self.display.text()
+        if current == "0":
+            if text.isdigit() or text == ".":
+                self.display.setText(text)
+            else:
+                self.display.setText(current + text)
         else:
-            current_text = self.display.text()
-            new_text = current_text + text
-            self.display.setText(new_text)
+            self.display.setText(current + text)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = EngineeringCalculator()
+    window = EngineeringCalculatorUI()
     window.show()
     sys.exit(app.exec())
