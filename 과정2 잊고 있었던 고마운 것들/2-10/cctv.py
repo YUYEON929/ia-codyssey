@@ -4,6 +4,8 @@ import os
 import cv2
 import numpy as np
 
+print("현재 작업 경로:", os.getcwd())
+
 def non_max_suppression(boxes, overlapThresh=0.65):
     """겹치는 박스를 제거하는 Non-Maximum Suppression"""
     if len(boxes) == 0:
